@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGRUA - Gestión de Cultivos Inteligentes</title>
+    <!-- Tailwind CSS para diseño moderno y responsive -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons para iconos limpios y modernos -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f1f8f3',
+                            100: '#dbecd1',
+                            500: '#1b5e20', /* Verde bosque exacto del logo S.I.G.R.U.A */
+                            600: '#124116',
+                            yellow: '#fbc02d', /* Amarillo/Dorado del sol y campo del logo */
+                            lightGreen: '#4caf50', /* Verde claro del brote */
+                            900: '#09240b',
+                            neonGreen: '#52ff00', /* Verde brillante de los sensores del dashboard */
+                        },
+                        dark: {
+                            800: '#1f2937',
+                            900: '#111827',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Animaciones suaves */
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Ocultar barra de scroll en el carrusel de sensores */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans scroll-smooth">
+
+    <!-- BARRA DE NAVEGACIÓN -->
+    <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                
+                <!-- Contenedor del Logo Corporativo -->
+                <div class="flex items-center space-x-3">
+                    
+                    <!-- ========================================================================= -->
+                    <!-- INICIO: ESPACIO PARA EL LOGO EN LA BARRA DE NAVEGACIÓN                     -->
+                    <!-- ========================================================================= -->
+                    <!-- INSTRUCCIÓN: Si quieres usar tu archivo de imagen 'logo sigrua 2.0.jpg',  -->
+                    <!-- descomenta la línea de abajo (quita el <!-- y el -->) y borra el div      -->
+                    <!-- que contiene el SVG de fallback que está justo debajo.                   -->
+                    
+                    <!-- <img src="logo sigrua 2.0.jpg" alt="Logo SIGRUA" class="h-10 w-auto object-contain"> -->
+                    
+                    <!-- Div del logo vectorial SVG temporal (borrar o comentar si usas la imagen) -->
+                    <div class="w-10 h-10 flex-shrink-0">
+                        <svg viewBox="0 0 100 100" class="w-full h-full">
+                            <defs>
+                                <linearGradient id="logo-border-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#fbc02d" />
+                                    <stop offset="50%" stop-color="#4caf50" />
+                                    <stop offset="100%" stop-color="#00acc1" />
+                                </linearGradient>
+                            </defs>
+                            <circle cx="50" cy="50" r="47" fill="#ffffff" stroke="url(#logo-border-grad)" stroke-width="3" />
+                            <polygon points="50,16 76,31 76,61 50,76 24,61 24,31" fill="none" stroke="#1b5e20" stroke-width="2.5" stroke-linejoin="round" />
+                            <path d="M 33,35 L 33,30 M 33,30 L 38,26 M 38,26 L 38,22" fill="none" stroke="#1b5e20" stroke-width="1.2" />
+                            <circle cx="38" cy="21" r="1.2" fill="#1b5e20" />
+                            <path d="M 40,35 L 40,30 M 40,30 L 45,26 M 45,26 L 45,19" fill="none" stroke="#1b5e20" stroke-width="1.2" />
+                            <circle cx="45" cy="18" r="1.2" fill="#1b5e20" />
+                            <circle cx="63" cy="28" r="3.5" fill="#fbc02d" />
+                            <path d="M 63,21 L 63,23 M 63,33 L 63,35 M 56,28 L 58,28 M 68,28 L 70,28 M 58,23 L 59.5,24.5 M 66.5,31.5 L 68,33 M 58,33 L 59.5,31.5 M 66.5,24.5 L 68,23" stroke="#fbc02d" stroke-width="0.8" />
+                            <path d="M 50,75 C 62,68 70,62 76,61 L 76,61" fill="none" stroke="#fbc02d" stroke-width="3.5" stroke-linecap="round" />
+                            <path d="M 50,75 C 58,58 68,54 76,53" fill="none" stroke="#4caf50" stroke-width="3.5" stroke-linecap="round" />
+                            <path d="M 50,75 C 54,48 68,46 76,45" fill="none" stroke="#1b5e20" stroke-width="3.5" stroke-linecap="round" />
+                            <path d="M 50,75 L 50,42" fill="none" stroke="#1b5e20" stroke-width="2.5" stroke-linecap="round" />
+                            <path d="M 50,58 C 42,54 42,48 50,48 Z" fill="#1b5e20" />
+                            <path d="M 50,51 C 58,47 58,41 50,41 Z" fill="#1b5e20" />
+                        </svg>
+                    </div>
+                    <!-- FIN: ESPACIO PARA EL LOGO EN LA BARRA DE NAVEGACIÓN                     -->
+                    <!-- ========================================================================= -->
+                    
+                    <span class="text-2xl font-black tracking-widest text-brand-500">S.I.G.R.U.A</span>
+                </div>
+
+                <!-- Menú Desktop -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#problema" class="text-gray-600 hover:text-brand-500 font-medium transition">El Problema</a>
+                    <a href="#solucion" class="text-gray-600 hover:text-brand-500 font-medium transition">Nuestra Solución</a>
+                    <a href="#ventajas" class="text-gray-600 hover:text-brand-500 font-medium transition">Diferenciadores</a>
+                    <a href="#identidad" class="text-gray-600 hover:text-brand-500 font-medium transition">Identidad</a>
+                    <a href="#contacto" class="bg-brand-500 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-brand-600 transition shadow-sm">
+                        Contacto
+                    </a>
+                </div>
+                <!-- Botón de Menú Móvil -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="p-2 text-gray-600 hover:text-brand-500 focus:outline-none">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Menú Móvil Desplegable -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-gray-100 px-4 pt-2 pb-4 space-y-2">
+            <a href="#problema" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 font-medium">El Problema</a>
+            <a href="#solucion" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 font-medium">Nuestra Solución</a>
+            <a href="#ventajas" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 font-medium">Diferenciadores</a>
+            <a href="#identidad" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 font-medium">Identidad</a>
+            <a href="#contacto" class="block text-center bg-brand-500 text-white px-4 py-2.5 rounded-lg font-semibold">Contacto</a>
+        </div>
+    </nav>
+
+    <!-- SECCIÓN HÉROE (Hero Section) -->
+    <header class="relative bg-gradient-to-b from-brand-50 to-white overflow-hidden py-16 lg:py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Columna Texto -->
+                <div class="lg:col-span-6 space-y-6 text-center lg:text-left fade-in">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-brand-100 text-brand-500">
+                        <i data-lucide="cpu" class="w-4 h-4 mr-1 text-brand-500"></i> Tecnología AgTech en Desarrollo (TRL 6)
+                    </span>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-brand-900 tracking-tight leading-none">
+                        Cultivos inteligentes <br class="hidden sm:inline">Hechos <span class="text-brand-500">Simples</span>
+                    </h1>
+                    <p class="text-lg sm:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0">
+                        Nuestra app de gestión ayuda al agricultor a optimizar recursos, simplificar tareas y maximizar rendimientos de manera sencilla.
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
+                        <a href="#contacto" class="bg-brand-500 hover:bg-brand-600 text-white px-8 py-4 rounded-xl text-lg font-bold shadow-lg shadow-brand-500/20 transition flex items-center justify-center">
+                            Contactar Soporte <i data-lucide="arrow-right" class="ml-2 w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Columna Visual Mockup App (Recreación exacta de screen7.png) -->
+                <div class="lg:col-span-6 flex justify-center relative">
+                    <!-- Decoración de Fondo -->
+                    <div class="absolute -inset-4 bg-brand-100 rounded-full blur-3xl opacity-75 w-80 h-80 mx-auto my-auto"></div>
+                    
+                    <!-- Simulador de Teléfono Celular de la App con proporciones exactas para mostrar la interfaz real -->
+                    <div class="relative bg-black text-black w-[330px] h-[670px] rounded-[50px] shadow-2xl border-[10px] border-gray-900 overflow-hidden flex flex-col">
+                        <!-- Sensor de Parlante / Cámara Superior -->
+                        <div class="absolute top-2 left-1/2 transform -translate-x-1/2 bg-gray-900 w-32 h-5 rounded-full z-30 flex items-center justify-center">
+                            <span class="w-2.5 h-2.5 rounded-full bg-gray-800 border border-gray-700"></span>
+                        </div>
+                        
+                        <!-- Pantalla de la aplicación real (S.I.G.R.U.A. Dashboard) -->
+                        <div class="p-3.5 flex-1 flex flex-col bg-[#f4f7f5] text-gray-800 pt-9 overflow-y-auto no-scrollbar text-left relative">
+                            
+                            <!-- 1. Header de la App -->
+                            <div class="flex justify-between items-center mb-4">
+                                <div class="flex items-center space-x-2">
+                                    <!-- Foto de perfil del agricultor -->
+                                    <div class="w-8 h-8 rounded-full overflow-hidden border border-brand-500">
+                                        <svg viewBox="0 0 100 100" class="w-full h-full bg-brand-100">
+                                            <circle cx="50" cy="40" r="20" fill="#1b5e20" />
+                                            <path d="M20,80 C20,60 80,60 80,80" fill="#1b5e20" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-black text-xs text-brand-900 tracking-wider">S.I.G.R.U.A.</h4>
+                                        <p class="text-[9px] text-gray-500 font-medium">Panel de Control</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2 text-gray-600">
+                                    <i data-lucide="help-circle" class="w-4 h-4"></i>
+                                    <div class="relative">
+                                        <i data-lucide="bell" class="w-4 h-4"></i>
+                                        <span class="absolute top-0 right-0 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. Dispositivos Conectados -->
+                            <div class="mb-4">
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <h5 class="text-[11px] font-bold text-gray-800">Dispositivos conectados</h5>
+                                    <span class="text-[10px] text-brand-500 font-semibold cursor-pointer hover:underline">Ver todos</span>
+                                </div>
+                                <!-- Lista horizontal de dispositivos -->
+                                <div class="flex space-x-2 overflow-x-auto no-scrollbar">
+                                    <!-- Sensor Norte Activo -->
+                                    <span class="flex-shrink-0 bg-[#3df500]/20 text-[#1b7d00] border border-[#3df500]/40 text-[9px] font-extrabold px-2.5 py-1 rounded-full flex items-center shadow-sm">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-[#1b7d00] mr-1.5 animate-pulse"></span> Sensor Norte: Activo
+                                    </span>
+                                    <!-- Invernadero A Activo -->
+                                    <span class="flex-shrink-0 bg-white text-gray-700 border border-gray-200 text-[9px] font-extrabold px-2.5 py-1 rounded-full flex items-center">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-brand-lightGreen mr-1.5"></span> Invernadero A: Activo
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- 3. Gráficas en tiempo real -->
+                            <div class="mb-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h5 class="text-[11px] font-bold text-gray-800">Gráficas en tiempo real</h5>
+                                    <i data-lucide="info" class="w-3.5 h-3.5 text-gray-400"></i>
+                                </div>
+
+                                <!-- Tarjeta de Temperatura (Aire) - Curva grande -->
+                                <div class="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm mb-2">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <span class="text-[9px] text-gray-400 font-bold block"><i data-lucide="thermometer" class="w-2.5 h-2.5 inline mr-1"></i>Temperatura (Aire)</span>
+                                            <span class="text-xl font-extrabold text-gray-900">24°C</span>
+                                            <span class="bg-[#e2f9e4] text-[#1b7d00] text-[8px] font-extrabold px-1.5 py-0.5 rounded ml-1">+2% 24h</span>
+                                        </div>
+                                        <span class="text-[#1b7d00] text-[9px] font-extrabold bg-[#e2f9e4] px-2 py-0.5 rounded-full">Estable</span>
+                                    </div>
+                                    <!-- Gráfico de línea SVG -->
+                                    <div class="h-10 mt-2">
+                                        <svg class="w-full h-full" viewBox="0 0 100 30" preserveAspectRatio="none">
+                                            <path d="M0,20 Q25,22 50,15 T100,5" fill="none" stroke="#4caf50" stroke-width="2" stroke-linecap="round"/>
+                                            <path d="M0,20 Q25,22 50,15 T100,5 L100,30 L0,30 Z" fill="url(#grad1)" opacity="0.15"/>
+                                            <defs>
+                                                <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                    <stop offset="0%" stop-color="#4caf50"/>
+                                                    <stop offset="100%" stop-color="#ffffff"/>
+                                                </linearGradient>
+                                            </defs>
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <!-- Grid de Humedad y pH Suelo -->
+                                <div class="grid grid-cols-2 gap-2">
+                                    <!-- Tarjeta Humedad -->
+                                    <div class="bg-white p-2.5 rounded-2xl border border-gray-100 shadow-sm">
+                                        <span class="text-[9px] text-gray-400 font-bold block"><i data-lucide="droplet" class="w-2.5 h-2.5 inline mr-1 text-blue-500"></i>Humedad</span>
+                                        <span id="app-humidity" class="text-lg font-extrabold text-gray-900 block">65%</span>
+                                        <!-- Mini gráfico SVG -->
+                                        <div class="h-6 my-1">
+                                            <svg class="w-full h-full" viewBox="0 0 100 30" preserveAspectRatio="none">
+                                                <path d="M0,15 Q25,20 50,15 T100,10" fill="none" stroke="#2196f3" stroke-width="2" />
+                                            </svg>
+                                        </div>
+                                        <span id="humidity-trend" class="text-red-500 text-[8px] font-bold block">↓ 5% vs ayer</span>
+                                    </div>
+
+                                    <!-- Tarjeta pH Suelo -->
+                                    <div class="bg-white p-2.5 rounded-2xl border border-gray-100 shadow-sm">
+                                        <span class="text-[9px] text-gray-400 font-bold block"><i data-lucide="beaker" class="w-2.5 h-2.5 inline mr-1 text-yellow-500"></i>pH Suelo</span>
+                                        <span class="text-lg font-extrabold text-gray-900 block">6.5</span>
+                                        <!-- Mini gráfico SVG -->
+                                        <div class="h-6 my-1">
+                                            <svg class="w-full h-full" viewBox="0 0 100 30" preserveAspectRatio="none">
+                                                <path d="M0,20 Q30,15 60,18 T100,15" fill="none" stroke="#ffb300" stroke-width="2" />
+                                            </svg>
+                                        </div>
+                                        <span class="text-[#1b7d00] text-[8px] font-bold block">✓ Óptimo</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. Alertas y sugerencias -->
+                            <div class="mb-4">
+                                <h5 class="text-[11px] font-bold text-gray-800 mb-1.5">Alertas y sugerencias</h5>
+                                <div class="space-y-1.5">
+                                    <!-- Alerta Humedad Bajo (Dinámica) -->
+                                    <div id="alert-humidity" class="bg-[#fff9e6] border border-[#ffe0b2] p-2 rounded-xl flex items-start space-x-2">
+                                        <div class="bg-[#ffe0b2] text-[#e65100] p-1 rounded-lg mt-0.5">
+                                            <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h6 class="text-[10px] font-extrabold text-[#e65100]">Nivel de humedad bajo</h6>
+                                            <p class="text-[8px] text-gray-600">Se recomienda activar el riego en el Sector Norte por 15 minutos.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Sugerencia Fertilizante -->
+                                    <div class="bg-[#ebf3ff] border border-[#bbdefb] p-2 rounded-xl flex items-start space-x-2">
+                                        <div class="bg-[#bbdefb] text-[#0d47a1] p-1 rounded-lg mt-0.5">
+                                            <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h6 class="text-[10px] font-extrabold text-[#0d47a1]">Optimización de fertilizante</h6>
+                                            <p class="text-[8px] text-gray-600">Basado en el pH actual (6.5), es un buen momento para aplicar nutrientes ricos en nitrógeno.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 5. Tarjeta Sistema de Riego (Control Principal) -->
+                            <div class="bg-[#0b1b0e] text-white p-3 rounded-2xl shadow-lg mb-4">
+                                <div class="flex justify-between items-center mb-3">
+                                    <div class="flex items-center space-x-1.5">
+                                        <i data-lucide="droplet" class="w-3.5 h-3.5 text-brand-lightGreen"></i>
+                                        <span class="text-xs font-black tracking-wide">Sistema de Riego</span>
+                                    </div>
+                                    <i data-lucide="settings" class="w-3.5 h-3.5 text-gray-400 cursor-pointer"></i>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <!-- Botón Activar (Interactiva) -->
+                                    <button id="riego-btn" onclick="toggleRiego()" class="bg-[#52ff00] hover:bg-[#48e000] text-black font-black text-[11px] py-3 rounded-xl flex flex-col items-center justify-center space-y-1 transition shadow-md transition-all">
+                                        <i data-lucide="power" class="w-4 h-4 text-black"></i>
+                                        <span id="riego-label">ACTIVAR</span>
+                                    </button>
+                                    <!-- Botón Temporizador -->
+                                    <button class="bg-transparent border border-white/20 hover:border-white/40 text-white font-black text-[11px] py-3 rounded-xl flex flex-col items-center justify-center space-y-1 transition">
+                                        <i data-lucide="timer" class="w-4 h-4 text-white"></i>
+                                        <span>TEMPORIZADOR</span>
+                                    </button>
+                                </div>
+                                <p id="riego-footer" class="text-center text-[8px] text-gray-400 mt-2.5">
+                                    <i data-lucide="clock" class="w-2 h-2 inline mr-1"></i> Próximo ciclo programado: 18:00 hrs
+                                </p>
+                            </div>
+
+                            <!-- 6. Cálculo promedio de recolección -->
+                            <div class="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm mb-4">
+                                <h5 class="text-[10px] font-bold text-gray-800 mb-2">Cálculo promedio de recolección</h5>
+                                <div class="flex items-center space-x-3">
+                                    <!-- Progreso Circular -->
+                                    <div class="relative w-12 h-12 flex-shrink-0">
+                                        <svg class="w-full h-full" viewBox="0 0 36 36">
+                                            <path class="text-gray-100" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                            <path id="progress-circle" class="text-[#3df500] transition-all duration-1000" stroke-width="3" stroke-dasharray="85, 100" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        </svg>
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <span id="progress-percentage" class="text-[10px] font-black text-gray-800">85%</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 space-y-1">
+                                        <div class="flex justify-between text-[9px] font-bold">
+                                            <span class="text-gray-400">Estimado</span>
+                                            <span class="text-gray-800">1,250 kg</span>
+                                        </div>
+                                        <!-- Barra horizontal de progreso -->
+                                        <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                                            <div id="progress-bar-inner" class="bg-[#3df500] h-full w-[85%] transition-all duration-1000"></div>
+                                        </div>
+                                        <div class="flex justify-between text-[8px] text-gray-400">
+                                            <span>Meta: 1,500 kg</span>
+                                            <span>15 días rest.</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 7. Bottom Navigation Bar de la App real -->
+                            <div class="border-t border-gray-200/80 pt-2 mt-auto flex justify-between items-center text-gray-400 relative">
+                                <div class="flex flex-col items-center cursor-pointer text-brand-lightGreen">
+                                    <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                                    <span class="text-[7px] font-bold mt-0.5">Inicio</span>
+                                </div>
+                                <div class="flex flex-col items-center cursor-pointer">
+                                    <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+                                    <span class="text-[7px] font-bold mt-0.5">Datos</span>
+                                </div>
+                                <!-- Botón central de mapa -->
+                                <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[#0b1b0e] text-[#52ff00] p-2.5 rounded-full shadow-lg border-4 border-[#f4f7f5] cursor-pointer flex items-center justify-center">
+                                    <i data-lucide="map" class="w-4 h-4"></i>
+                                </div>
+                                <div></div> <!-- Espacio para el botón central -->
+                                <div class="flex flex-col items-center cursor-pointer">
+                                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                                    <span class="text-[7px] font-bold mt-0.5">Agenda</span>
+                                </div>
+                                <div class="flex flex-col items-center cursor-pointer">
+                                    <i data-lucide="user" class="w-4 h-4"></i>
+                                    <span class="text-[7px] font-bold mt-0.5">Perfil</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- SECCIÓN EL PROBLEMA -->
+    <section id="problema" class="py-20 bg-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <span class="text-brand-500 font-bold tracking-wider text-sm uppercase">El Dolor del Campo</span>
+            <h2 class="text-3xl sm:text-4xl font-black text-brand-900 mt-2 mb-6">El gran obstáculo del agricultor</h2>
+            
+            <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-2xl max-w-3xl mx-auto shadow-sm">
+                <p class="text-xl text-red-900 font-medium leading-relaxed italic">
+                    "El agricultor pierde tiempo y dinero al no poder controlar y gestionar sus cultivos inteligentes de forma sencilla desde un solo lugar."
+                </p>
+            </div>
+
+            <!-- Desglose de dolores -->
+            <div class="grid sm:grid-cols-3 gap-8 mt-12 text-left">
+                <div class="p-5 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="bg-red-100 text-red-600 w-10 h-10 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="clock-alert" class="w-5 h-5"></i>
+                    </div>
+                    <h4 class="font-bold text-gray-900 mb-2">Pérdida de Tiempo</h4>
+                    <p class="text-sm text-gray-600">Revisar sistemas, ajustar parámetros de forma desordenada y tener que acudir físicamente a revisar cada rincón.</p>
+                </div>
+                <div class="p-5 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="bg-red-100 text-red-600 w-10 h-10 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="server-off" class="w-5 h-5"></i>
+                    </div>
+                    <h4 class="font-bold text-gray-900 mb-2">Sistemas Desconectados</h4>
+                    <p class="text-sm text-gray-600">Disponer de tecnología inteligente, pero sin una vía centralizada que integre los aparatos. Cada equipo funciona por su lado.</p>
+                </div>
+                <div class="p-5 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="bg-red-100 text-red-600 w-10 h-10 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="wallet-cards" class="w-5 h-5"></i>
+                    </div>
+                    <h4 class="font-bold text-gray-900 mb-2">Gastos Ineficientes</h4>
+                    <p class="text-sm text-gray-600">Desperdicio de agua, energía e insumos por no poder programar ni controlar los sistemas de forma inteligente y ágil.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECCIÓN LA SOLUCIÓN -->
+    <section id="solucion" class="py-20 bg-brand-900 text-white relative overflow-hidden">
+        <!-- Fondo Decorativo Verde del Logo -->
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-500/10 rounded-full blur-3xl"></div>
+
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            <span class="text-brand-yellow font-bold tracking-wider text-sm uppercase">La Solución SIGRUA</span>
+            <h2 class="text-3xl sm:text-4xl font-black mt-2 mb-6">Centraliza, automatiza y toma el control</h2>
+            
+            <div class="bg-white/10 backdrop-blur-md border border-white/10 p-6 rounded-2xl max-w-3xl mx-auto shadow-xl">
+                <p class="text-xl sm:text-2xl text-brand-100 font-medium leading-relaxed italic">
+                    "Una app fácil que centraliza la gestión de cultivos inteligentes, dando al agricultor el control total para manejar su campo desde donde sea."
+                </p>
+            </div>
+
+            <!-- Por qué es diferente (Nuestra Ventaja Única) -->
+            <div id="ventajas" class="mt-16 text-left">
+                <h3 class="text-2xl font-bold text-center mb-10 text-brand-yellow">¿Qué hace a nuestro valor ÚNICO?</h3>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Tarjeta Ventaja 1 -->
+                    <div class="bg-white/5 p-6 rounded-xl border border-white/10 hover:border-brand-yellow/30 transition duration-300">
+                        <div class="flex items-start space-x-4">
+                            <div class="bg-brand-500 text-white p-3 rounded-lg mt-1">
+                                <i data-lucide="unplug" class="w-6 h-6 text-brand-yellow"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg text-white mb-2">Compatibilidad Universal</h4>
+                                <p class="text-sm text-gray-300">
+                                    SIGRUA ofrece una app fácil que funciona con cualquier equipo. No obligamos al agricultor a depender de una sola marca de hardware cerrada.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta Ventaja 2 -->
+                    <div class="bg-white/5 p-6 rounded-xl border border-white/10 hover:border-brand-yellow/30 transition duration-300">
+                        <div class="flex items-start space-x-4">
+                            <div class="bg-brand-500 text-white p-3 rounded-lg mt-1">
+                                <i data-lucide="smartphone" class="w-6 h-6 text-brand-yellow"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg text-white mb-2">Control Total y Simplicidad</h4>
+                                <p class="text-sm text-gray-300">
+                                    Unificamos la gestión inteligente para dar control absoluto al agricultor, permitiéndole manejar, monitorear y controlar todo su campo a distancia de forma sumamente sencilla.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECCIÓN INTERACTIVA DE IDENTIDAD DE MARCA -->
+    <section id="identidad" class="py-20 bg-white">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <span class="text-brand-500 font-bold tracking-wider text-sm uppercase">Nuestra Identidad</span>
+                <h2 class="text-3xl sm:text-4xl font-black text-brand-900 mt-2">La esencia detrás de SIGRUA</h2>
+                <p class="text-gray-600 mt-3">Cada trazo de nuestro logotipo representa el compromiso de llevar la tecnología más avanzada al corazón de la tierra.</p>
+            </div>
+
+            <div class="grid lg:grid-cols-12 gap-12 items-center">
+                <!-- Logotipo interactivo grande -->
+                <div class="lg:col-span-5 flex justify-center">
+                    
+                    <!-- ========================================================================= -->
+                    <!-- INICIO: ESPACIO PARA EL LOGO EN VERSIÓN GRANDE                             -->
+                    <!-- ========================================================================= -->
+                    <!-- INSTRUCCIÓN: Si quieres usar tu archivo de imagen 'logo sigrua 2.0.jpg',  -->
+                    <!-- descomenta la línea de abajo y borra/comenta el div del SVG gigante.       -->
+                    
+                    <!-- <img src="logo sigrua 2.0.jpg" alt="Logo SIGRUA Grande" class="w-64 h-64 sm:w-80 sm:h-80 object-contain hover:scale-105 transition-transform duration-300"> -->
+                    
+                    <!-- Div de logo SVG de fallback (borrar o comentar si colocas la imagen) -->
+                    <div class="w-64 h-64 sm:w-80 sm:h-80 bg-white rounded-full p-4 shadow-2xl border border-gray-100 hover:scale-105 transition-transform duration-300">
+                        <svg viewBox="0 0 100 100" class="w-full h-full">
+                            <defs>
+                                <linearGradient id="logo-border-large" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#fbc02d" />
+                                    <stop offset="50%" stop-color="#4caf50" />
+                                    <stop offset="100%" stop-color="#00acc1" />
+                                </linearGradient>
+                            </defs>
+                            <circle cx="50" cy="50" r="47" fill="#ffffff" stroke="url(#logo-border-large)" stroke-width="2.5" />
+                            <polygon points="50,16 76,31 76,61 50,76 24,61 24,31" fill="none" stroke="#1b5e20" stroke-width="2" stroke-linejoin="round" />
+                            
+                            <!-- Circuitos -->
+                            <path d="M 33,35 L 33,30 M 33,30 L 38,26 M 38,26 L 38,22" fill="none" stroke="#1b5e20" stroke-width="1" />
+                            <circle cx="38" cy="21" r="1" fill="#1b5e20" />
+                            <path d="M 40,35 L 40,30 M 40,30 L 45,26 M 45,26 L 45,19" fill="none" stroke="#1b5e20" stroke-width="1" />
+                            <circle cx="45" cy="18" r="1" fill="#1b5e20" />
+                            
+                            <!-- Sol -->
+                            <circle cx="63" cy="28" r="3" fill="#fbc02d" />
+                            <path d="M 63,21 L 63,23 M 63,33 L 63,35 M 56,28 L 58,28 M 68,28 L 70,28 M 58,23 L 59.5,24.5 M 66.5,31.5 L 68,33 M 58,33 L 59.5,31.5 M 66.5,24.5 L 68,23" stroke="#fbc02d" stroke-width="0.6" />
+                            
+                            <!-- Campos -->
+                            <path d="M 50,75 C 62,68 70,62 76,61" fill="none" stroke="#fbc02d" stroke-width="3" stroke-linecap="round" />
+                            <path d="M 50,75 C 58,58 68,54 76,53" fill="none" stroke="#4caf50" stroke-width="3" stroke-linecap="round" />
+                            <path d="M 50,75 C 54,48 68,46 76,45" fill="none" stroke="#1b5e20" stroke-width="3" stroke-linecap="round" />
+                            
+                            <!-- Brote -->
+                            <path d="M 50,75 L 50,42" fill="none" stroke="#1b5e20" stroke-width="2" stroke-linecap="round" />
+                            <path d="M 50,58 C 42,54 42,48 50,48 Z" fill="#1b5e20" />
+                            <path d="M 50,51 C 58,47 58,41 50,41 Z" fill="#1b5e20" />
+                        </svg>
+                    </div>
+                    <!-- FIN: ESPACIO PARA EL LOGO EN VERSIÓN GRANDE                             -->
+                    <!-- ========================================================================= -->
+                    
+                </div>
+
+                <!-- Explicación de los Elementos -->
+                <div class="lg:col-span-7 space-y-8">
+                    <div class="flex items-start space-x-4">
+                        <div class="bg-brand-50 text-brand-500 p-2 rounded-lg mt-1">
+                            <i data-lucide="network" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-brand-900 text-lg">Los Nodos Tecnológicos</h4>
+                            <p class="text-sm text-gray-600">Representan la automatización, el Internet de las Cosas (IoT) y la capacidad que tiene nuestra app para coordinarse de manera inteligente con tus equipos de campo.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <div class="bg-brand-50 text-brand-500 p-2 rounded-lg mt-1">
+                            <i data-lucide="sun-medium" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-brand-900 text-lg">El Sol y la Tierra</h4>
+                            <p class="text-sm text-gray-600">El alma de la agricultura. Rendimos tributo al campo conectando los ritmos naturales y recursos vitales con el poder de la toma de decisiones basada en datos.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ESTADO TRL 6 & DETALLES -->
+    <section class="py-16 bg-gray-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">¿En qué etapa estamos?</h3>
+            <p class="text-gray-600 max-w-2xl mx-auto mb-8">
+                Actualmente, estamos puliendo la interfaz y los últimos detalles del software para lanzar la versión comercial al mercado.
+            </p>
+            <div class="inline-flex flex-wrap items-center justify-center gap-6 bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
+                <div class="flex items-center text-gray-700">
+                    <i data-lucide="check-circle" class="w-5 h-5 text-brand-500 mr-2"></i> Prototipo Construido
+                </div>
+                <div class="flex items-center text-gray-700">
+                    <i data-lucide="test-tube" class="w-5 h-5 text-brand-500 mr-2"></i> Pruebas Técnicas Listas
+                </div>
+                <div class="flex items-center text-gray-700 animate-pulse">
+                    <i data-lucide="sparkles" class="w-5 h-5 text-brand-yellow mr-2"></i> Pulido Final en Marcha
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECCIÓN DE CONTACTO Y SOPORTE DIRECTO -->
+    <section id="contacto" class="py-20 bg-brand-900 text-white text-center relative overflow-hidden border-t border-white/10">
+        <!-- Fondo Decorativo Sutil -->
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-500/10 rounded-full blur-3xl"></div>
+
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-6">
+            <div class="bg-brand-500/20 text-brand-yellow w-14 h-14 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                <i data-lucide="mail" class="w-7 h-7"></i>
+            </div>
+            <h3 class="text-3xl sm:text-4xl font-black tracking-tight text-white">¿Tienes dudas o necesitas soporte?</h3>
+            <p class="text-brand-100 max-w-xl mx-auto text-base leading-relaxed">
+                Estamos aquí para ayudarte a optimizar la gestión de tus cultivos inteligentes. Ponte en contacto con nuestro equipo de desarrollo directamente por correo electrónico.
+            </p>
+            <div class="pt-4">
+                <div class="inline-flex flex-col sm:flex-row items-center gap-4 bg-white/10 backdrop-blur-md border border-white/10 px-6 py-4 rounded-3xl">
+                    <span class="text-sm text-gray-300 font-medium">Contáctanos en:</span>
+                    <a href="mailto:soporte.sigra@gmail.com" class="text-brand-yellow font-black text-xl hover:text-white transition duration-200 tracking-wide">
+                        soporte.sigra@gmail.com
+                    </a>
+                </div>
+            </div>
+            <p class="text-xs text-brand-100/60 pt-2">
+                Atención y respuesta de soporte técnico en un plazo máximo de 24 a 48 horas laborales.
+            </p>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-dark-900 text-white py-12 border-t border-white/5">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                <div class="flex items-center space-x-3">
+                    
+                    <!-- ========================================================================= -->
+                    <!-- INICIO: ESPACIO PARA EL LOGO EN EL PIE DE PÁGINA (FOOTER)                  -->
+                    <!-- ========================================================================= -->
+                    <!-- INSTRUCCIÓN: Si quieres usar tu archivo de imagen 'logo sigrua 2.0.jpg',  -->
+                    <!-- descomenta la línea de abajo y borra/comenta el div del SVG del footer.    -->
+                    
+                    <!-- <img src="logo sigrua 2.0.jpg" alt="Logo SIGRUA Footer" class="h-8 w-auto object-contain"> -->
+                    
+                    <!-- Div de logo SVG de fallback (borrar o comentar si colocas la imagen) -->
+                    <div class="w-8 h-8">
+                        <svg viewBox="0 0 100 100" class="w-full h-full">
+                            <circle cx="50" cy="50" r="47" fill="#ffffff" />
+                            <polygon points="50,16 76,31 76,61 50,76 24,61 24,31" fill="none" stroke="#1b5e20" stroke-width="3" stroke-linejoin="round" />
+                            <path d="M 50,75 C 62,68 70,62 76,61" fill="none" stroke="#fbc02d" stroke-width="4.5" />
+                            <path d="M 50,75 C 58,58 68,54 76,53" fill="none" stroke="#4caf50" stroke-width="4.5" />
+                            <path d="M 50,75 L 50,42" fill="none" stroke="#1b5e20" stroke-width="3" />
+                        </svg>
+                    </div>
+                    <!-- FIN: ESPACIO PARA EL LOGO EN EL PIE DE PÁGINA (FOOTER)                  -->
+                    <!-- ========================================================================= -->
+                    
+                    <span class="text-lg font-black tracking-widest">S.I.G.R.U.A</span>
+                </div>
+                <p class="text-xs text-gray-400">
+                    &copy; 2026 S.I.G.R.U.A. Todos los derechos reservados. Impulsando la agricultura inteligente.
+                </p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i data-lucide="linkedin" class="w-5 h-5"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- LÓGICA DE INTERACCIÓN JAVASCRIPT -->
+    <script>
+        // Inicializar iconos de Lucide
+        lucide.createIcons();
+
+        // 1. Manejo del Menú de navegación móvil
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Cerrar menú al hacer click en enlaces
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // 2. Simulación interactiva avanzada basada en screen7.png
+        let isWatering = false;
+
+        function toggleRiego() {
+            const riegoBtn = document.getElementById('riego-btn');
+            const riegoLabel = document.getElementById('riego-label');
+            const riegoFooter = document.getElementById('riego-footer');
+            const alertHumidity = document.getElementById('alert-humidity');
+            const appHumidity = document.getElementById('app-humidity');
+            const humidityTrend = document.getElementById('humidity-trend');
+            const progressCircle = document.getElementById('progress-circle');
+            const progressPercentage = document.getElementById('progress-percentage');
+            const progressBarInner = document.getElementById('progress-bar-inner');
+
+            isWatering = !isWatering;
+
+            if (isWatering) {
+                // Estado: Activo / Regando
+                riegoBtn.classList.remove('bg-[#52ff00]', 'hover:bg-[#48e000]');
+                riegoBtn.classList.add('bg-blue-500', 'hover:bg-blue-600', 'text-white');
+                riegoLabel.textContent = "REGANDO...";
+                riegoFooter.innerHTML = '<i data-lucide="droplets" class="w-2.5 h-2.5 inline mr-1 animate-bounce text-blue-400"></i> Riego activo en Sector Norte - 15m';
+                
+                // Actualizar interfaz del celular en tiempo real
+                appHumidity.textContent = "78%";
+                appHumidity.className = "text-lg font-extrabold text-blue-600 block animate-pulse";
+                humidityTrend.textContent = "↑ Incrementando rápido";
+                humidityTrend.className = "text-[#1b7d00] text-[8px] font-bold block";
+
+                // Cambiar el anillo de recolección/salud
+                progressCircle.setAttribute('stroke-dasharray', '92, 100');
+                progressPercentage.textContent = "92%";
+                progressBarInner.style.width = "92%";
+
+                // Resolver la alerta de humedad baja
+                alertHumidity.innerHTML = `
+                    <div class="bg-[#e2f9e4] text-[#1b7d00] p-1 rounded-lg mt-0.5">
+                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h6 class="text-[10px] font-extrabold text-[#1b7d00]">Nivel de humedad óptimo</h6>
+                        <p class="text-[8px] text-gray-600">Riego en curso. Parámetros estabilizados satisfactoriamente.</p>
+                    </div>
+                `;
+                alertHumidity.className = "bg-[#e2f9e4] border border-[#dbecd1] p-2 rounded-xl flex items-start space-x-2 transition duration-300";
+
+            } else {
+                // Volver al estado del Mockup original (como en screen7.png)
+                riegoBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600', 'text-white');
+                riegoBtn.classList.add('bg-[#52ff00]', 'hover:bg-[#48e000]');
+                riegoLabel.textContent = "ACTIVAR";
+                riegoFooter.innerHTML = '<i data-lucide="clock" class="w-2.5 h-2.5 inline mr-1"></i> Próximo ciclo programado: 18:00 hrs';
+
+                appHumidity.textContent = "65%";
+                appHumidity.className = "text-lg font-extrabold text-gray-900 block";
+                humidityTrend.textContent = "↓ 5% vs ayer";
+                humidityTrend.className = "text-red-500 text-[8px] font-bold block";
+
+                progressCircle.setAttribute('stroke-dasharray', '85, 100');
+                progressPercentage.textContent = "85%";
+                progressBarInner.style.width = "85%";
+
+                // Restaurar la alerta de peligro original
+                alertHumidity.innerHTML = `
+                    <div class="bg-[#ffe0b2] text-[#e65100] p-1 rounded-lg mt-0.5">
+                        <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h6 class="text-[10px] font-extrabold text-[#e65100]">Nivel de humedad bajo</h6>
+                        <p class="text-[8px] text-gray-600">Se recomienda activar el riego en el Sector Norte por 15 minutos.</p>
+                    </div>
+                `;
+                alertHumidity.className = "bg-[#fff9e6] border border-[#ffe0b2] p-2 rounded-xl flex items-start space-x-2 transition duration-300";
+            }
+            
+            // Re-instanciar los iconos modificados dinámicamente con JS
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
